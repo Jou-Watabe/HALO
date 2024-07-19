@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HALO-Stickies</title>
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <script src="./lib/dexie.min.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
+    <link rel="stylesheet" href="./styles/jquery-ui.css">
+    <link rel="stylesheet" href="./styles/stickies.styles.css">
+    <link rel="stylesheet" href="./styles/main.style.css">
+    <link rel="stylesheet" href="./styles/main_ver-stikies.style.css">
+</head>
+<body>
+    <div class="menu-bar">
+        <div class="button-group group-1">
+            <button id="HALO-TextEditor-btn" onclick="navigateToPage('HALO-TextEditor.html',event)">HALO-TextEditor</button>
+            <button id="HALO-Echo-btn" onclick="navigateToPage('HALO-Echo.html',event)">HALO-Echo</button>
+            <button id="HALO-Stickies-btn" onclick="navigateToPage('HALO-Stickies.html',event)">HALO-Stickies</button>
+        </div>
+        <div class="button-group group-2">
+            <button id="HALO-Browser-btn" onclick="navigateToPage('HALO-Browser.html',event)">HALO-Browser</button>
+            <button id="HALO-Projection-btn" onclick="navigateToPage('HALO-Projection.html',event)">HALO-Projection</button>
+        </div>
+        <div class="button-group group-3">
+            <button onclick="showSearchHistory()">検索履歴表示</button>
+            <button onclick="importSearchHistory()">検索履歴をインポート</button>
+        </div>
+    </div>
+    <div class="editor-container">
+        <div id="controller">
+            <div id="button-container">
+                <button id="add-button"><img src="./images/add.png" /></button>
+                <button id="warp-button"><img src="./images/clock.png" /></button>
+            </div>
+        </div>
+        <py-config>
+            packages = ["numpy", "pandas","matplotlib", "scikit-learn"]
+            terminal = false
+        </py-config>
+        <div id="sticky-note-container"></div>
+    </div>
+    <script src="./js/page_move.script.js"></script>
+    <script src="./js/search_history.js"></script>
+    <script src="./lib/jquery-3.6.0.min.js"></script>
+    <script src="./lib/jquery-ui.js"></script>
+    <script src="./js/stickies.script.js"></script>
+</body>
+</html>

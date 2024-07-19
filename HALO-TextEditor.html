@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HALO-TextEditor</title>
+    <script src="./lib/dexie.min.js"></script>
+    <link rel="stylesheet" href="./styles/main.style.css">
+    <link rel="stylesheet" href="./styles/texteditor.script.css">
+    <!-- <link rel="stylesheet" href="./styles/main_ver-texteditor.style.css"> -->
+</head>
+<body>
+    <div class="menu-bar">
+        <div class="button-group group-1">
+            <button id="HALO-TextEditor-btn" onclick="navigateToPage('HALO-TextEditor.html',event)">HALO-TextEditor</button>
+            <button id="HALO-Echo-btn" onclick="navigateToPage('HALO-Echo.html',event)">HALO-Echo</button>
+            <button id="HALO-Stickies-btn" onclick="navigateToPage('HALO-Stickies.html',event)">HALO-Stickies</button>
+        </div>
+        <div class="button-group group-2">
+            <button id="HALO-Browser-btn" onclick="navigateToPage('HALO-Browser.html',event)">HALO-Browser</button>
+            <button id="HALO-Projection-btn" onclick="navigateToPage('HALO-Projection.html',event)">HALO-Projection</button>
+        </div>
+        <div class="button-group group-3">
+            <button onclick="showSearchHistory()">検索履歴表示</button>
+            <button onclick="importSearchHistory()">検索履歴をインポート</button>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="container">
+            <div class="edit-container">
+                <textarea id="editor" placeholder="ここにメモを入力..."></textarea>
+                <div class="editor-options">
+                    <label for="fontSize">フォントサイズ:</label>
+                    <select id="fontSize">
+                        <option value="12px">小さい</option>
+                        <option value="16px" selected>普通</option>
+                        <option value="20px">大きい</option>
+                    </select>
+                    <label for="fontFamily">フォント:</label>
+                    <select id="fontFamily">
+                        <option value="Arial, sans-serif" selected>Arial</option>
+                        <option value="Times New Roman, serif">Times New Roman</option>
+                        <option value="Courier New, monospace">Courier New</option>
+                    </select>
+                </div>
+            </div>
+            <div class="historyDisplay-group">
+                <div id="historyDisplay"></div>
+                <input type="range" id="historySlider" min="0" max="0" step="1">
+            </div>
+        </div>
+        <div class="history-container">
+            <div id="history"></div>
+            <div class="history-controls">
+                <label for="threshold">閾値 (秒): </label>
+                <input type="range" id="threshold" min="1" max="300" value="1">
+                <span id="thresholdValue">1</span> 秒
+            </div>
+        </div>
+    </div>
+    <script src="./js/database.script.js"></script>
+    <script src="./js/page_move.script.js"></script>
+    <script src="./js/search_history.js"></script>
+    <script src="./js/texteditor.script.js"></script>
+</body>
+</html>

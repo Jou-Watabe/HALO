@@ -1,0 +1,120 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    font-family: Arial, sans-serif;
+}
+
+.menu-bar {
+    margin-bottom: 20px;
+}
+
+.main-container {
+    width: 80%; /* 画面幅の80%に設定 */
+    height: 80vh; /* 画面の80%の高さに設定 */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* 必要に応じてスクロールバーを表示 */
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    flex: 1; /* 残りのスペースを埋める */
+}
+
+.edit-container, .historyDisplay-group {
+    width: calc(50% - 10px); /* 各コンテナを50%から間隔を引いた幅に */
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-container {
+    margin-right: 10px; /* テキストエリアとhistoryDisplayの間に間隔を設定 */
+}
+
+.historyDisplay-group {
+    display: flex;
+    flex-direction: column;
+}
+
+#historyDisplay, #history {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px; /* テキストエリアとヒストリーの間に間隔を設定 */
+    overflow-y: auto;
+    white-space: pre-wrap;
+
+    /* スクロールバーのスタイル */
+    scrollbar-width: thin; /* Firefox対応 */
+    scrollbar-color: #ccc #f0f0f0; /* Firefox対応 */
+}
+
+#historyDisplay::-webkit-scrollbar, #history::-webkit-scrollbar {
+    width: 8px; /* Chrome対応 */
+}
+
+#historyDisplay::-webkit-scrollbar-thumb, #history::-webkit-scrollbar-thumb {
+    background-color: #ccc; /* スクロールバーの色 */
+    border-radius: 4px; /* 角丸 */
+}
+
+#editor, #historyDisplay, #history {
+    min-height: 300px; /* 最小の高さも指定（任意で調整可能） */
+    max-height: 300px; /* 最大の高さも指定（任意で調整可能） */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 16px;
+    resize: none; /* リサイズを禁止 */
+    box-sizing: border-box; /* パディングとボーダーを含めた全体の幅と高さを指定 */
+    overflow-y: auto; /* 必要に応じてスクロールバーを表示 */
+}
+
+#historySlider, #threshold {
+    width: 100%; /* 横幅を調整 */
+    margin-top: 10px; /* 上部との間隔を設定 */
+    -webkit-appearance: none; /* Safariのデフォルトスタイルをリセット */
+    height: 8px;
+    background: #f0f0f0;
+    outline: none;
+    border-radius: 4px;
+}
+
+#historySlider::-webkit-slider-thumb, #threshold::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Safariのデフォルトスタイルをリセット */
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #666;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.editor-options {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.history-container {
+    width: 100%; /* 横幅をmain-containerと同じに */
+    height: 40%;
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px; /* 上部との間隔を設定 */
+}

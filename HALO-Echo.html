@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HALO-Echo</title>
+    <script src="./lib/dexie.min.js"></script>
+    <link rel="stylesheet" href="./styles/main.style.css">
+    <link rel="stylesheet" href="./styles/echo.style.css">
+</head>
+<body>
+    <div class="menu-bar">
+        <div class="button-group group-1">
+            <button id="HALO-TextEditor-btn" onclick="navigateToPage('HALO-TextEditor.html',event)">HALO-TextEditor</button>
+            <button id="HALO-Echo-btn" onclick="navigateToPage('HALO-Echo.html',event)">HALO-Echo</button>
+            <button id="HALO-Stickies-btn" onclick="navigateToPage('HALO-Stickies.html',event)">HALO-Stickies</button>
+        </div>
+        <div class="button-group group-2">
+            <button id="HALO-Browser-btn" onclick="navigateToPage('HALO-Browser.html',event)">HALO-Browser</button>
+            <button id="HALO-Projection-btn" onclick="navigateToPage('HALO-Projection.html',event)">HALO-Projection</button>
+        </div>
+        <div class="button-group group-3">
+            <button onclick="showSearchHistory()">検索履歴表示</button>
+            <button onclick="importSearchHistory()">検索履歴をインポート</button>
+        </div>
+    </div>
+    <div class="editor-container">
+        <div class="container">
+            <div class="control-area">
+                <div class="button-group">
+                    <button id="start-recording">ON</button>
+                    <button id="stop-recording">OFF</button>
+                </div>
+                <div class="playback-group">
+                    <button id="mode-button">keyword</button>
+                    <div id="keyword-playback">
+                        <input type="text" id="keyword-input" placeholder="キーワードを入力">
+                    </div>
+                    <div id="time-playback" style="display: none;">
+                        <input type="date" id="date-input">
+                        <input type="time" id="time-input">
+                    </div>
+                </div>
+            </div>
+            <div class="speech-display-area" id="speech-display-area">
+                <!-- 発話データ表示エリア -->
+            </div>
+            <div class="slider-container">
+                <input type="range" id="speech-slider" min="0" max="100" value="0">
+                <div id="speech-slider-markers" class="slider-markers"></div>
+            </div>
+            <div id="word-cloud" class="word-cloud">
+                <h2>昨日の発話</h2>
+                <div id="word-cloud-display"></div>
+            </div>
+        </div>
+    </div>
+    <script src="./js/database.script.js"></script>
+    <script src="./js/page_move.script.js"></script>
+    <script src="./js/search_history.js"></script>
+    <script src="./js/echo.script.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HALO Tools</title>
+    <script src="./lib/dexie.min.js"></script>
+    <script src="./js/page.script.js"></script>
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism.min.css"> -->
+    <link rel="stylesheet" href="./styles/main.style.css">
+    <link rel="stylesheet" href="./styles/explorer.style.css">
+</head>
+<body>
+    <div class="menu-bar">
+        <div class="button-group group-1">
+            <button id="HALO-TextEditor-btn" onclick="navigateToPage('HALO-TextEditor.html',event)">HALO-TextEditor</button>
+            <button id="HALO-Echo-btn" onclick="navigateToPage('HALO-Echo.html',event)">HALO-Echo</button>
+            <button id="HALO-Stickies-btn" onclick="navigateToPage('HALO-Stickies.html',event)">HALO-Stickies</button>
+        </div>
+        <div class="button-group group-2">
+            <button id="HALO-Browser-btn" onclick="navigateToPage('HALO-Browser.html',event)">HALO-Browser</button>
+            <button id="HALO-Projection-btn" onclick="navigateToPage('HALO-Projection.html',event)">HALO-Projection</button>
+        </div>
+        <div class="button-group group-3">
+            <button onclick="showSearchHistory()">検索履歴表示</button>
+            <button onclick="importSearchHistory()">検索履歴をインポート</button>
+        </div>
+    </div>
+    <div class="editor-container">
+        <div class="file-explorer">
+            <div class="container">
+                <header>
+                  <h1>ディレクトリ</h1>
+                  <button id="createFolderButton">フォルダ作成</button>
+                </header>
+                <div id="folderTree" class="folder-tree"></div>
+            </div>
+        </div>
+        <div class="code-editor">
+            <div class="tab-bar" id="tab-bar"></div>
+            <textarea id="editor" class="language-markup"></textarea>
+        </div>
+    </div>
+    <script src="./js/main.script.js"></script>
+    <script src="./js/database.script.js"></script>
+    <script src="./js/explorer.script.js"></script>
+    <script src="./js/search_history.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script> -->
+</body>
+</html>

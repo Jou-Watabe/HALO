@@ -1,0 +1,108 @@
+.container {
+    width: 90%;
+    max-width: 800px;
+    height: 80%;
+    max-height: 800px;
+    margin: 40px auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* 必要に応じてスクロールバーを表示 */
+}
+
+.control-area {
+    height: 5vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.button-group, .playback-group {
+    display: flex;
+    gap: 10px;
+}
+
+.button-group button, .playback-group button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.button-group button:hover, .playback-group button:hover {
+    background-color: #0056b3;
+}
+
+.speech-display-area {
+    height: 40vh;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+.slider-container {
+    width: 100%;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+input[type="range"] {
+    width: 100%;
+    border-radius: 5px;
+    background-color: #eaeaea;
+}
+
+.slider-markers {
+    position: absolute;
+    top: 20px; /* スライダーの下に配置 */
+    left: 0;
+    right: 0;
+    height: 20px;
+}
+
+.slider-marker {
+    position: absolute;
+    width: 2px;
+    height: 10px;
+    background: red;
+    top: 0;
+}
+
+.word-cloud {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f2f2f2;
+}
+
+.word-cloud h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.word {
+    display: inline-block;
+    margin: 5px;
+    padding: 5px;
+    border-radius: 5px;
+    background: #007bff;
+    color: white;
+    transition: transform 0.3s;
+}
+
+.word:hover {
+    transform: scale(1.1);
+}

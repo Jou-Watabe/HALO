@@ -1,0 +1,37 @@
+.search-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    word-wrap: break-word; 
+}
+.search-history-table th, .search-history-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+.search-history-table th {
+    background-color: #f2f2f2;
+}
+
+.wrap { 
+    word-wrap: break-word; 
+    max-width: 200px; 
+}
+
+.highlight {
+    background-color: yellow;
+    font-weight: bold;
+}
+
+#topKeywords {
+    margin-top: 20px;
+}
+
+#topKeywords ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+#topKeywords li {
+    margin-bottom: 5px;
+}

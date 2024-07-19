@@ -1,0 +1,119 @@
+/*　付箋追加ボタン等，HALO-Stickiesを制御する部品を配置する領域 */
+#controller { 
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 10%;
+}
+
+/*　ボタン群を配置する領域 */
+#button-container { 
+    width: 50%;
+    height: 100%;
+}
+
+/*　ボタンのサイズを決める */
+#button-container button { 
+    width: 10%;
+    height: 100%;
+    border: solid 1px; /* もしボタンの囲い線を消したければここをコメントアウト */
+    cursor: pointer;
+    padding: 10px 15px;
+}
+
+/*　ボタンの背景画像のサイズを決める */
+#button-container img { 
+    max-width: 100%; /* 画像の最大幅を親要素の幅に合わせて調整 */
+    height: auto;
+}
+
+/*　付箋を配置する領域 */
+#sticky-note-container { 
+    display: flex;
+    justify-content: space-around;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 85%;
+}
+
+/*　付箋全体のレイアウト */
+.note {
+    resize: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 40%;
+    /* max-height: 70%; */
+    max-height: 85%;
+    background-color: aliceblue;
+    padding: 10px;
+    cursor: pointer;
+}
+
+/* 付箋の生成時刻の文字サイズ */
+.timestamp{
+    font-size: 5px;
+}
+
+/*　付箋下部のボタン群のレイアウト */
+.sticky-button{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+/*　色を変えるボタン群の領域のサイズ */
+.sticky-color-button{
+    width: 40%;
+}
+
+/*　色を変えるボタンの共通設定 */
+.color-button{
+    width: 20%;
+    height: 70%;
+    color: rgb(0, 0, 0);
+    border: solid 0.5px #6e6d6d;
+    border-radius: 50%;
+    margin: 1%;
+}
+
+/*　色を変えるボタンの色 */
+input[data-color="#db6b3b"]{
+    background: #db6b3b;
+}
+
+input[data-color="#dfd964"]{
+    background: #dfd964;
+}
+
+input[data-color="#7cd89c"]{
+    background: #7cd89c;
+}
+
+input[data-color="aliceblue"]{
+    background: aliceblue;
+}
+
+/*　固定・削除ボタン群の領域のサイズ */
+.sticky-control-button{
+    display: flex;
+    justify-content: flex-end;
+    width: 50%;
+}
+
+/*　固定・削除ボタンの共通設定 */
+.sticky-control-button input{
+    width: 20%;
+    height: 70%;
+    color: rgb(0, 0, 0);
+    border: solid 0.5px #6e6d6d;
+    margin: 1%;
+}
+
+.cell{
+    overflow-y: scroll;
+}

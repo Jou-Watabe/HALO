@@ -1,0 +1,132 @@
+.container {
+    max-width: 200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #ececec;
+    padding-bottom: 10px;
+}
+
+h1 {
+    font-size: 15px;
+    margin: 0;
+}
+
+header button {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 10px;
+}
+
+header button:hover {
+    background-color: #0056b3;
+}
+
+.folder-tree {
+    margin-top: 20px;
+    max-height: 700px; /* スクロール可能な最大高さを設定 */
+    overflow-y: auto; /* 垂直スクロールバーを追加 */    
+}
+
+/* Scrollbar styles for Webkit-based browsers (Chrome, Safari) */
+.folder-tree::-webkit-scrollbar {
+    width: 12px;
+}
+  
+.folder-tree::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 10px;
+}
+
+.folder-tree::-webkit-scrollbar-thumb {
+    background: #888; 
+    border-radius: 10px;
+    border: 3px solid #f1f1f1;
+}
+
+.folder-tree::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+
+/* Scrollbar styles for Firefox */
+.folder-tree {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+}
+
+/* Scrollbar track and thumb for Firefox */
+.folder-tree::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.folder-tree::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+    border: 3px solid #f1f1f1;
+}
+
+
+.folder,
+.file {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.folder {
+    background-color: #e3f2fd;
+    flex-direction: column;
+    align-items: flex-start; /* 左寄せ */
+}
+
+.file {
+    background-color: #fff;
+    flex-direction: row;
+    width: 90%;
+    align-items: flex-start; /* 左寄せ */
+}
+
+.folder span,
+.file span {
+    font-size: 15px;
+}
+
+.folder button,
+.file button {
+    margin-left: 10px;
+    background-color: #e3d9da;
+    border: none;
+    padding: 0px 2px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 8px;
+}
+
+.folder button:hover,
+.file button:hover {
+    background-color: #c82333;
+}
+
+.file-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* 左寄せ */
+}
