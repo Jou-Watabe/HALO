@@ -40,6 +40,76 @@
     height: 85%;
 }
 
+/* sticky-history-windowのスタイル */
+#sticky-history-window {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 50%;
+    height: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: none;
+    transition: transform 1s ease-in-out, top 1s ease-in-out, left 1s ease-in-out;
+    transform-origin: bottom right;
+    z-index: 1000;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#sticky-history-window.zoomed {
+    top: 0 !important;
+    left: 0 !important;
+    transform: none;
+    width: 100%;
+    height: 100%;
+}
+
+/* sticky-historiesエリアのスタイル */
+#sticky-histories {
+    width: 100%;
+    height: 80%;
+    background: #f5f5f5;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    border-bottom: 1px solid #ddd;
+}
+
+/* timeskipエリアのスタイル */
+#timeskip {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 20%;
+    background: #fff;
+    padding: 10px;
+    box-sizing: border-box;
+    margin-top: 20px;
+}
+
+#timeskip button {
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#time-slider {
+    width: 100%;
+    margin-top: 10px;
+}
+
+#timestamp-display {
+    padding: 10px;
+    margin: 0 10px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    width: 150px;
+    text-align: center;
+}
+
 /*　付箋全体のレイアウト */
 .note {
     resize: none;
@@ -115,5 +185,80 @@ input[data-color="aliceblue"]{
 }
 
 .cell{
+    overflow-y: scroll;
+}
+
+.new_note {
+    resize: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 500px;
+    height: 100px;
+    /* width: 85%;
+    height: 85%; */
+    /* min-width: 40%;
+    max-height: 30%; */
+    /* min-width: 40%;
+    max-height: 85%; */
+    background-color: aliceblue;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.new_note .timestamp {
+    font-size: 5px;
+}
+
+.new_note .sticky-button {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.new_note .sticky-color-button {
+    width: 40%;
+}
+
+.new_note .color-button {
+    width: 20%;
+    height: 70%;
+    color: rgb(0, 0, 0);
+    border: solid 0.5px #6e6d6d;
+    border-radius: 50%;
+    margin: 1%;
+}
+
+.new_note input[data-color="#db6b3b"] {
+    background: #db6b3b;
+}
+
+.new_note input[data-color="#dfd964"] {
+    background: #dfd964;
+}
+
+.new_note input[data-color="#7cd89c"] {
+    background: #7cd89c;
+}
+
+.new_note input[data-color="aliceblue"] {
+    background: aliceblue;
+}
+
+.new_note .sticky-control-button {
+    display: flex;
+    justify-content: flex-end;
+    width: 50%;
+}
+
+.new_note .sticky-control-button input {
+    width: 20%;
+    height: 70%;
+    color: rgb(0, 0, 0);
+    border: solid 0.5px #6e6d6d;
+    margin: 1%;
+}
+
+.new_note .cell {
     overflow-y: scroll;
 }
