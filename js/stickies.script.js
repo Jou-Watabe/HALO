@@ -15,18 +15,6 @@ function getNewNote(time) {
             top: 200,  // Y座標の位置を指定
             'z-index': 0, // 初期のz-index値を設定
         })
-        // .hover(
-        //     function () {
-        //         // 現在の付箋要素よりも高いz-indexを設定
-        //         var maxZIndex = Math.max.apply(null, $('.note').map(function () {
-        //             return parseInt($(this).css('z-index')) || 0;
-        //         }));
-        //         $(this).css('z-index', maxZIndex + 1);
-        //     },
-        //     function () {
-        //         // マウスが外れた時にz-indexを元に戻す必要はない
-        //     }
-
         .on('click', function () {
             var maxZIndex = Math.max.apply(null, $('.note').map(function () {
                 return parseInt($(this).css('z-index')) || 0;
@@ -68,13 +56,6 @@ function appendFunctions($note) {
         containment: "#sticky-note-container" /* sticky-note-container領域のみでドラッグアンドドロップ可能にする*/
     });
 
-    // 指定したコードセルの行を強調表示
-    $(function () {
-        $('#editor-box').linedtextarea({
-            selectedLine: 1
-        });
-    });
-
     // color-buttonが押された際に付箋の色を変える
     $note.on('click', '.color-button', function () {
         const color = $(this).data('color');
@@ -111,7 +92,7 @@ function now_time() {
     var hour = ("0" + date.getHours()).slice(-2);
     var minute = ("0" + date.getMinutes()).slice(-2);
     var second = ("0" + date.getSeconds()).slice(-2);
-    time_string = year + '-' + month + '-' + day + '_' + hour + ':' + minute + ':' + second + ' ';
+    time_string = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second + ' ';
 
     return time_string;
 }
@@ -133,6 +114,184 @@ $('#add-button').on('click', function () {
     }
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    const warpButton = document.getElementById('warp-button');
+    const stickyHistoryWindow = document.getElementById('sticky-history-window');
+    let isZoomed = false;
+
+    warpButton.addEventListener('click', function (event) {
+        if (stickyHistoryWindow.style.display === 'block') {
+            stickyHistoryWindow.style.display = 'none';
+        } else {
+            stickyHistoryWindow.style.display = 'block';
+        }
+    });
+
+    stickyHistoryWindow.addEventListener('click', function (event) {
+        if (event.shiftKey) {
+            if (isZoomed) {
+                stickyHistoryWindow.style.top = '';
+                stickyHistoryWindow.style.left = '';
+                stickyHistoryWindow.classList.remove('zoomed');
+                isZoomed = false;
+            } else {
+                stickyHistoryWindow.style.top = '0';
+                stickyHistoryWindow.style.left = '0';
+                stickyHistoryWindow.classList.add('zoomed');
+                isZoomed = true;
+            }
+        }
+    });
+});
 
 // ***** *****
 // ***** *****
+
+// ***** 付箋のプロパティをデータベースに格納するための関数 *****
+async function stockInfo(stickies) {
+    try {
+        await db_his.stickies.bulkPut(stickies);
+    } catch (error) {
+        console.error("付箋データの保存中にエラーが発生しました:", error);
+    }
+}
+
+// ***** 付箋データを読み込む関数 *****
+async function loadStickyNotes() {
+    try {
+        const timestampDisplay = document.getElementById('timestamp-display');
+        const selectedRunTime = timestampDisplay.textContent;
+
+        const stickiesToDisplay = selectedRunTime === "--:--:--"
+            ? await db_his.stickies.toArray()
+            : await db_his.stickies.where('run_time').equals(selectedRunTime).toArray();
+
+        const stickyHistories = document.getElementById('sticky-histories');
+        stickyHistories.innerHTML = '';
+
+        stickiesToDisplay.forEach(sticky => {
+            const noteElement = createNote(
+                sticky.generate_time,
+                sticky.code,
+                sticky.text,
+                sticky.left,
+                sticky.top,
+                sticky.color
+            );
+            stickyHistories.insertAdjacentHTML('beforeend', noteElement);
+        });
+    } catch (error) {
+        console.error("付箋データの読み込み中にエラーが発生しました:", error);
+    }
+}
+
+// ***** 付箋のHTML要素を作成する関数 *****
+function createNote(generate_time, code, memo, left, top, color) {
+    return `
+        <div class="new_note" style="position: relative; left: ${left}; top: ${top}; background: ${color}">
+            <input type="text" class="code_memo" placeholder="memo" value="${memo}">
+            <py-repl class="cell">
+                ${code}
+            </py-repl>
+            <p class="timestamp">
+                生成時刻: ${generate_time}
+            </p>
+            <div class="sticky-button">
+                <div class="sticky-color-button">
+                    <input data-color="#db6b3b" class="color-button" type="button">
+                    <input data-color="#dfd964" class="color-button" type="button">
+                    <input data-color="#7cd89c" class="color-button" type="button">
+                    <input data-color="aliceblue" class="color-button" type="button">
+                </div>
+                <div class="sticky-control-button">
+                    <input class="delete-button" type="button" value="削除">
+                    <input class="fixed-button" type="button" value="固定">
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ***** タイムコントロールを設定する関数 *****
+let timestamps = [];
+
+// ***** タイムコントロールを設定する関数 *****
+async function loadTimestamps() {
+    try {
+        const allStickies = await db_his.stickies.orderBy('run_time').toArray();
+        timestamps = [...new Set(allStickies.map(sticky => sticky.run_time))];
+        const timeSlider = document.getElementById('time-slider');
+        timeSlider.max = timestamps.length > 0 ? timestamps.length - 1 : 0;
+        timeSlider.value = timeSlider.max;
+        updateTimestampDisplay();
+    } catch (error) {
+        console.error("タイムスタンプの読み込み中にエラーが発生しました:", error);
+    }
+}
+
+function updateTimestampDisplay() {
+    const timestampDisplay = document.getElementById('timestamp-display');
+    const timeSlider = document.getElementById('time-slider');
+    const index = parseInt(timeSlider.value, 10);
+    if (timestamps.length > 0 && index >= 0 && index < timestamps.length) {
+        timestampDisplay.textContent = timestamps[index];
+    } else {
+        timestampDisplay.textContent = "--:--:--";
+    }
+}
+
+document.getElementById('time-slider').addEventListener('input', function () {
+    updateTimestampDisplay();
+    loadStickyNotes();
+});
+
+// ***** btnRun (コード実行ボタン) が押された際の処理 *****
+$('#sticky-note-container').on('click', '.py-repl-run-button', async function () {
+    const runTime = now_time();
+    const groupId = Date.now();
+
+    const stickies = Array.from(document.querySelectorAll('#sticky-note-container .note')).map((divStyleElement, i) => {
+        if (divStyleElement.closest('#sticky-histories')) {
+            return null;
+        }
+
+        const style = window.getComputedStyle(divStyleElement);
+        const pyReplElement = divStyleElement.querySelector('.cell');
+        const pyReplBox = pyReplElement.querySelector('.py-repl-box');
+        const pyReplEditor = pyReplBox.querySelector('.py-repl-editor');
+        const divInEditor = pyReplEditor.querySelector('div');
+        const shadowRoot = divInEditor.shadowRoot;
+        const cmContent = shadowRoot.querySelector('.cm-content');
+        const textContent = Array.from(cmContent.childNodes).map(node => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                return node.textContent.trim();
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                return Array.from(node.childNodes).map(childNode => childNode.textContent.trim()).join('');
+            }
+            return '';
+        }).join('');
+
+        const isRunCell = pyReplElement.querySelector('.py-repl-run-button') === this;
+
+        return {
+            generate_time: divStyleElement.querySelector(".timestamp").textContent.replace("生成時刻: ", ""),
+            run_time: runTime,
+            code: textContent,
+            text: divStyleElement.querySelector(".code_memo").value,
+            top: style.getPropertyValue('top'),
+            left: style.getPropertyValue('left'),
+            color: style.backgroundColor,
+            is_run_cell: isRunCell,
+            group_id: groupId
+        };
+    }).filter(sticky => sticky !== null);
+
+    await stockInfo(stickies);
+    await loadStickyNotes();
+    await loadTimestamps(); // スライダーの最大値を更新
+});
+
+// ページロード時に時間コントロールを設定
+document.addEventListener('DOMContentLoaded', function () {
+    loadTimestamps();
+});
