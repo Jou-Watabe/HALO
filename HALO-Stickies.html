@@ -39,8 +39,17 @@
             packages = ["numpy", "pandas","matplotlib", "scikit-learn"]
             terminal = false
         </py-config>
-        <div id="sticky-note-container"></div>
+        <div id="sticky-note-container">
+            <div id="sticky-history-window">
+                <div id="sticky-histories"></div>
+                <div id="timeskip">
+                    <div id="timestamp-display">--:--:--</div>
+                    <input type="range" id="time-slider" min="0" max="0" step="1">
+                </div>
+            </div>
+        </div>
     </div>
+    <script src="./js/database.script.js"></script>
     <script src="./js/page_move.script.js"></script>
     <script src="./js/search_history.js"></script>
     <script src="./lib/jquery-3.6.0.min.js"></script>
