@@ -1,4 +1,16 @@
-/*　付箋追加ボタン等，HALO-Stickiesを制御する部品を配置する領域 */
+/* ページ全体の設定 */
+html, body { 
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    --font_size: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    overflow: hidden;
+}
+
+/* 付箋追加ボタン等，HALO-Stickiesを制御する部品を配置する領域 */
 #controller { 
     display: flex;
     flex-direction: row;
@@ -9,28 +21,36 @@
     height: 10%;
 }
 
-/*　ボタン群を配置する領域 */
+/* ボタン群を配置する領域 */
 #button-container { 
     width: 50%;
     height: 100%;
 }
 
-/*　ボタンのサイズを決める */
+/* ボタンのサイズを決める */
 #button-container button { 
     width: 10%;
     height: 100%;
-    border: solid 1px; /* もしボタンの囲い線を消したければここをコメントアウト */
+    border: none;
     cursor: pointer;
     padding: 10px 15px;
+    background-color: #333;
+    color: #fff;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
-/*　ボタンの背景画像のサイズを決める */
+#button-container button:hover {
+    background-color: #555;
+}
+
+/* ボタンの背景画像のサイズを決める */
 #button-container img { 
-    max-width: 100%; /* 画像の最大幅を親要素の幅に合わせて調整 */
+    max-width: 100%;
     height: auto;
 }
 
-/*　付箋を配置する領域 */
+/* 付箋を配置する領域 */
 #sticky-note-container { 
     display: flex;
     justify-content: space-around;
@@ -38,6 +58,7 @@
     padding: 0;
     width: 100%;
     height: 85%;
+    position: relative;
 }
 
 /* sticky-history-windowのスタイル */
