@@ -187,13 +187,37 @@ async function loadStickyNotes() {
 
 // ***** 付箋のHTML要素を作成する関数 *****
 function createNote(generate_time, code, memo, left, top, color) {
+    const container = document.getElementById('sticky-note-container');
+    const historyWindow = document.getElementById('sticky-histories');
+
+    const containerWidth = container.offsetWidth;
+    const containerHeight = container.offsetHeight;
+    const historyWidth = historyWindow.offsetWidth;
+    const historyHeight = historyWindow.offsetHeight;
+
+    // 数値として処理する
+    left = parseFloat(left);
+    top = parseFloat(top);
+
+    // スケールファクターの計算
+    const scaleX = historyWidth / containerWidth;
+    const scaleY = historyHeight / containerHeight;
+    
+    // 新しい位置を計算
+    let newLeft = left * scaleX;
+    let newTop = top * scaleY;
+
+    // 付箋のサイズを最大値に基づいて設定
+    const maxNoteWidth = historyWidth * 0.4;
+    const maxNoteHeight = historyHeight * 0.35;
+
     return `
-        <div class="new_note" style="position: relative; left: ${left}; top: ${top}; background: ${color}">
-            <input type="text" class="code_memo" placeholder="memo" value="${memo}">
-            <py-repl class="cell">
+        <div class="new_note" style="position: absolute; left: ${newLeft}px; top: ${newTop}px; background: ${color}; width: ${maxNoteWidth}px; height: ${maxNoteHeight}px;">
+            <input type="text" class="code_memo" placeholder="memo" value="${memo}" style="width: 100%;">
+            <py-repl class="cell" style="width: 100%; height: calc(100% - 40px);">
                 ${code}
             </py-repl>
-            <p class="timestamp">
+            <p class="timestamp" style="width: 100%;">
                 生成時刻: ${generate_time}
             </p>
             <div class="sticky-button">
@@ -262,14 +286,16 @@ $('#sticky-note-container').on('click', '.py-repl-run-button', async function ()
         const divInEditor = pyReplEditor.querySelector('div');
         const shadowRoot = divInEditor.shadowRoot;
         const cmContent = shadowRoot.querySelector('.cm-content');
-        const textContent = Array.from(cmContent.childNodes).map(node => {
-            if (node.nodeType === Node.TEXT_NODE) {
-                return node.textContent.trim();
-            } else if (node.nodeType === Node.ELEMENT_NODE) {
-                return Array.from(node.childNodes).map(childNode => childNode.textContent.trim()).join('');
-            }
-            return '';
-        }).join('');
+        const textContent = Array.from(cmContent.querySelectorAll('.cm-line')).map(line => {
+            return Array.from(line.childNodes).map(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    return node.textContent.trim();
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    return Array.from(node.childNodes).map(childNode => childNode.textContent.trim()).join('');
+                }
+                return '';
+            }).join('');
+        }).join('\n');
 
         const isRunCell = pyReplElement.querySelector('.py-repl-run-button') === this;
 
