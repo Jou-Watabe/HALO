@@ -96,6 +96,21 @@ html, body {
     box-sizing: border-box;
     overflow-y: auto;
     border-bottom: 1px solid #ddd;
+    overflow: auto; /* スクロールを有効にする */
+    position: relative; /* 子要素の絶対位置を有効にする */
+
+    /* スクロールバーのスタイル */
+    scrollbar-width: thin; /* Firefox対応 */
+    scrollbar-color: #ccc #f0f0f0; /* Firefox対応 */
+}
+
+#sticky-histories::-webkit-scrollbar {
+    width: 8px; /* Chrome対応 */
+}
+
+#sticky-histories::-webkit-scrollbar-thumb {
+    background-color: #ccc; /* スクロールバーの色 */
+    border-radius: 4px; /* 角丸 */
 }
 
 /* timeskipエリアのスタイル */
@@ -118,8 +133,24 @@ html, body {
 }
 
 #time-slider {
-    width: 100%;
-    margin-top: 10px;
+    width: 100%; /* 横幅を調整 */
+    margin-top: 10px; /* 上部との間隔を設定 */
+    -webkit-appearance: none; /* Safariのデフォルトスタイルをリセット */
+    height: 8px;
+    background: #f0f0f0;
+    outline: none;
+    border-radius: 4px;
+    border: none;
+}
+
+#time-slider::-webkit-slider-thumb, #threshold::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Safariのデフォルトスタイルをリセット */
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #666;
+    cursor: pointer;
+    border-radius: 50%;
 }
 
 #timestamp-display {
@@ -139,7 +170,7 @@ html, body {
     justify-content: space-between;
     min-width: 40%;
     /* max-height: 70%; */
-    max-height: 85%;
+    max-height: 35%;
     background-color: aliceblue;
     padding: 10px;
     cursor: pointer;
@@ -209,26 +240,22 @@ input[data-color="aliceblue"]{
     overflow-y: scroll;
 }
 
+/* Ensure notes do not resize based on parent container */
 .new_note {
     resize: none;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 500px;
-    height: 100px;
-    /* width: 85%;
-    height: 85%; */
-    /* min-width: 40%;
-    max-height: 30%; */
-    /* min-width: 40%;
-    max-height: 85%; */
     background-color: aliceblue;
     padding: 10px;
     cursor: pointer;
+    max-width: 40%;
+    max-height: 35%;
 }
 
+/* Apply consistent styling to elements inside the note */
 .new_note .timestamp {
-    font-size: 5px;
+    font-size: 12px;
 }
 
 .new_note .sticky-button {
