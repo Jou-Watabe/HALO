@@ -143,49 +143,48 @@ async function createFile(folderId) {
 // ファイルを開く関数
 async function openFile(file) {
   const tabBar = document.getElementById("tab-bar");
-  const editor = document.getElementById("editor");
 
   // 既存のタブがあるかチェック
   let existingTab = document.querySelector(`[data-file-id="${file.id}"]`);
   if (!existingTab) {
-    // 新しいタブを作成
-    const newTab = document.createElement("div");
-    newTab.classList.add("tab");
-    newTab.textContent = file.name;
-    newTab.setAttribute("data-file-id", file.id);
-    newTab.setAttribute("data-folder-id", file.parentId);
-    tabBar.appendChild(newTab);
+      // 新しいタブを作成
+      const newTab = document.createElement("div");
+      newTab.classList.add("tab");
+      newTab.textContent = file.name;
+      newTab.setAttribute("data-file-id", file.id);
+      newTab.setAttribute("data-folder-id", file.parentId);
+      tabBar.appendChild(newTab);
 
-    // タブのクリックイベント
-    newTab.addEventListener("click", async () => {
-      const updatedFile = await db.files.get(file.id);
-      editor.value = updatedFile.content;
+      // タブのクリックイベント
+      newTab.addEventListener("click", async () => {
+          const updatedFile = await db.files.get(file.id);
+          editor.setValue(updatedFile.content); // CodeMirrorエディタにファイルの内容を設定
+          setActiveTab(newTab);
+      });
+
+      // タブに削除ボタンを追加
+      const deleteTabButton = document.createElement("span");
+      deleteTabButton.textContent = "×";
+      deleteTabButton.classList.add("delete-tab");
+      deleteTabButton.addEventListener("click", (e) => {
+          e.stopPropagation();
+          tabBar.removeChild(newTab);
+          editor.setValue("");
+      });
+      newTab.appendChild(deleteTabButton);
+
+      // 新しいタブをアクティブに設定
       setActiveTab(newTab);
-    });
-
-    // タブに削除ボタンを追加
-    const deleteTabButton = document.createElement("span");
-    deleteTabButton.textContent = "×";
-    deleteTabButton.classList.add("delete-tab");
-    deleteTabButton.addEventListener("click", (e) => {
-      e.stopPropagation();
-      tabBar.removeChild(newTab);
-      editor.value = "";
-    });
-    newTab.appendChild(deleteTabButton);
-
-    // 新しいタブをアクティブに設定
-    setActiveTab(newTab);
   }
 
   // エディタにファイルの内容を表示
-  editor.value = file.content;
+  editor.setValue(file.content); // CodeMirrorエディタにファイルの内容を設定
 
   // 既存のタブをアクティブにする
   if (existingTab) {
-    const updatedFile = await db.files.get(file.id);
-    editor.value = updatedFile.content;
-    setActiveTab(existingTab);
+      const updatedFile = await db.files.get(file.id);
+      editor.setValue(updatedFile.content); // CodeMirrorエディタにファイルの内容を設定
+      setActiveTab(existingTab);
   }
 }
 
@@ -198,21 +197,20 @@ function setActiveTab(tab) {
 
 // ファイルの保存関数
 async function saveFile() {
-  const editor = document.getElementById("editor");
   const activeTab = document.querySelector(".active-tab");
   if (activeTab) {
-    const fileId = Number(activeTab.getAttribute("data-file-id"));
-    const folderId = Number(activeTab.getAttribute("data-folder-id"));
-    const newContent = editor.value;
+      const fileId = Number(activeTab.getAttribute("data-file-id"));
+      const folderId = Number(activeTab.getAttribute("data-folder-id"));
+      const newContent = editor.getValue(); // CodeMirrorエディタからコードを取得
 
-    await db.files.update(fileId, { content: newContent });
+      await db.files.update(fileId, { content: newContent });
 
-    const folder = await db.folders.get(folderId);
-    const file = await db.files.get(fileId);
+      const folder = await db.folders.get(folderId);
+      const file = await db.files.get(fileId);
 
-    alert(`${folder.name}フォルダの${file.name}ファイルが上書き保存されました`);
+      alert(`${folder.name}フォルダの${file.name}ファイルが上書き保存されました`);
   } else {
-    alert("保存するファイルがありません。");
+      alert("保存するファイルがありません。");
   }
 }
 
