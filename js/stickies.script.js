@@ -148,20 +148,28 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    function toggleZoom() {
+        if (isZoomed) {
+            stickyHistoryWindow.style.top = '';
+            stickyHistoryWindow.style.left = '';
+            stickyHistoryWindow.classList.remove('zoomed');
+            isZoomed = false;
+        } else {
+            stickyHistoryWindow.style.top = '0';
+            stickyHistoryWindow.style.left = '0';
+            stickyHistoryWindow.classList.add('zoomed');
+            isZoomed = true;
+        }
+    }
+
     stickyHistoryWindow.addEventListener('click', function (event) {
         if (event.shiftKey) {
-            if (isZoomed) {
-                stickyHistoryWindow.style.top = '';
-                stickyHistoryWindow.style.left = '';
-                stickyHistoryWindow.classList.remove('zoomed');
-                isZoomed = false;
-            } else {
-                stickyHistoryWindow.style.top = '0';
-                stickyHistoryWindow.style.left = '0';
-                stickyHistoryWindow.classList.add('zoomed');
-                isZoomed = true;
-            }
+            toggleZoom();
         }
+    });
+
+    stickyHistoryWindow.addEventListener('dblclick', function () {
+        toggleZoom();
     });
 });
 
