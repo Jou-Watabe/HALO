@@ -81,6 +81,27 @@ function appendFunctions($note) {
             $(this).parents('.note').draggable("option", "disabled", false);
         };
     });
+
+    // タッチイベントの追加
+    $note.on('touchstart touchmove touchend', function (e) {
+        var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+        var $target = $(e.target);
+
+        if (e.type === 'touchstart') {
+            $target.data('touchstartX', touch.pageX);
+            $target.data('touchstartY', touch.pageY);
+            $target.data('noteStartX', parseInt($note.css('left')));
+            $target.data('noteStartY', parseInt($note.css('top')));
+        } else if (e.type === 'touchmove') {
+            var deltaX = touch.pageX - $target.data('touchstartX');
+            var deltaY = touch.pageY - $target.data('touchstartY');
+            $note.css({
+                left: $target.data('noteStartX') + deltaX,
+                top: $target.data('noteStartY') + deltaY
+            });
+            e.preventDefault(); // デフォルトのスクロール動作を防止
+        }
+    });
 }
 
 // ***** 現在時刻を取得する関数 *****
