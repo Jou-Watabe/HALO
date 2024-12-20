@@ -1,312 +1,405 @@
 /* ページ全体の設定 */
-html, body { 
-    height: 100vh;
+body {
     margin: 0;
-    padding: 0;
-    --font_size: 16px;
+    height: 100vh;
+    overflow: hidden;
+    font-family: Arial, sans-serif; 
+    background-color: #f0f2f5;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
-    overflow: hidden;
+    justify-content: center;
+    align-items: center;
 }
 
-/* 付箋追加ボタン等，HALO-Stickiesを制御する部品を配置する領域 */
-#controller { 
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    margin: 0;
-    padding: 0;
+.menu-bar {
+    height: 50px;
+    background-color: #1e1e1e;
+    color: white;
     width: 100%;
-    height: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* ボタン群を配置する領域 */
-#button-container { 
-    width: 50%;
-    height: 100%;
+.button-group {
+    display: flex;
+    align-items: center;
 }
 
-/* ボタンのサイズを決める */
-#button-container button { 
-    width: 10%;
-    height: 100%;
+.group-1 {
+    margin-right: 20px;
+    margin-left: 20px; /* 追加された左側のスペース */
+}
+
+.group-2 {
+    margin-right: auto;
+    margin-left: 1px;
+}
+
+.group-3 {
+    margin-right: 10px;
+    margin-left: auto;
+}
+
+.menu-bar button {
+    background-color: #0078d4;
+    color: white;
     border: none;
-    cursor: pointer;
+    font-size: 12px;
+    font-family: auto;
+    line-height: 14px;
     padding: 10px 15px;
-    background-color: #333;
-    color: #fff;
     border-radius: 5px;
-    transition: background-color 0.3s ease;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-right: 5px;
 }
 
-#button-container button:hover {
-    background-color: #555;
+.menu-bar button:hover {
+    background-color: #005a9e;
 }
 
-/* ボタンの背景画像のサイズを決める */
-#button-container img { 
-    max-width: 100%;
-    height: auto;
+/* ここから */
+
+.controller {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
 }
 
-/* 付箋を配置する領域 */
-#sticky-note-container { 
+#workspace {
+    width: 100%; 
+    height: 100vh; 
+    position: relative;
     display: flex;
     justify-content: space-around;
     margin: 0;
     padding: 0;
-    width: 100%;
-    height: 85%;
-    position: relative;
+    /* overflow: hidden; */
+}
+
+.code-cell {
+  position: absolute;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  padding: 10px;
+  width: 30%;
+  height: 40%;
+  resize: both;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1; /* 初期値として適切なz-indexを設定 */
+}
+
+/* ボタンを横並びに配置 */
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* カラーピッカーのスタイル */
+.color-picker {
+  width: 30px;
+  height: 30px;
+  margin-left: 10px; /* ボタンとの間にスペースを確保 */
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.code-editor {
+  height: 50%; /* 必要な高さに調整 */
+  overflow-y: auto;
+  border: 1px solid #ccc; /* 境界線を明確に */
+  border-radius: 4px;
+}
+
+.output {
+  margin-top: 10px;
+  padding: 5px;
+  background: #f1f1f1;
+  font-size: 0.9em;
+  min-height: 50px;
+  border-top: 1px solid #ccc;
+}
+
+/* テキストメモエリア */
+.note {
+  margin-top: 10px;
+  width: 97%;
+  height: 15%;
+}
+
+.text-note {
+  width: 100%;
+  height: 100%;
+  padding: 5px;
+  font-size: 0.9em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: none;
+}
+
+/* タイムスタンプのスタイル */
+.timestamp {
+  width: 100%;
+  height: 2%;
+  bottom: 10px;
+  font-size: 0.8em;
+  color: #000000;
+}
+
+.CodeMirror-vscrollbar {
+  display: none !important; /* スクロールバーを非表示にする */
 }
 
 /* sticky-history-windowのスタイル */
 #sticky-history-window {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    width: 50%;
-    height: 50%;
-    background: rgba(255, 255, 255, 0.95);
-    border: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: none;
-    transition: transform 1s ease-in-out, top 1s ease-in-out, left 1s ease-in-out;
-    transform-origin: bottom right;
-    z-index: 1000;
-    border-radius: 10px;
-    overflow: hidden;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  height: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  visibility: hidden;
+  transition: transform 1s ease-in-out, top 1s ease-in-out, left 1s ease-in-out;
+  transform-origin: bottom right;
+  z-index: 1000;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 #sticky-history-window.zoomed {
-    top: 0 !important;
-    left: 0 !important;
-    transform: none;
-    width: 100%;
-    height: 100%;
+  top: 0 !important;
+  left: 0 !important;
+  transform: none;
+  width: 100%;
+  height: 100%;
 }
 
 /* sticky-historiesエリアのスタイル */
 #sticky-histories {
-    width: 100%;
-    height: 80%;
-    background: #f5f5f5;
-    padding: 20px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    border-bottom: 1px solid #ddd;
-    overflow: auto; /* スクロールを有効にする */
-    position: relative; /* 子要素の絶対位置を有効にする */
+  width: 100%;
+  height: 80%;
+  background: #f5f5f5;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  border-bottom: 1px solid #ddd;
+  overflow: auto; /* スクロールを有効にする */
+  position: relative; /* 子要素の絶対位置を有効にする */
 
-    /* スクロールバーのスタイル */
-    scrollbar-width: thin; /* Firefox対応 */
-    scrollbar-color: #ccc #f0f0f0; /* Firefox対応 */
+  /* スクロールバーのスタイル */
+  scrollbar-width: thin; /* Firefox対応 */
+  scrollbar-color: #ccc #f0f0f0; /* Firefox対応 */
 }
 
 #sticky-histories::-webkit-scrollbar {
-    width: 8px; /* Chrome対応 */
+  width: 8px; /* Chrome対応 */
 }
 
 #sticky-histories::-webkit-scrollbar-thumb {
-    background-color: #ccc; /* スクロールバーの色 */
-    border-radius: 4px; /* 角丸 */
+  background-color: #ccc; /* スクロールバーの色 */
+  border-radius: 4px; /* 角丸 */
 }
 
 /* timeskipエリアのスタイル */
 #timeskip {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 20%;
-    background: #fff;
-    padding: 10px;
-    box-sizing: border-box;
-    margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 20%;
+  background: #fff;
+  padding: 10px;
+  box-sizing: border-box;
+  margin-top: 20px;
 }
 
 #timeskip button {
-    padding: 10px;
-    font-size: 16px;
-    cursor: pointer;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 #time-slider {
-    width: 100%; /* 横幅を調整 */
-    margin-top: 10px; /* 上部との間隔を設定 */
-    -webkit-appearance: none; /* Safariのデフォルトスタイルをリセット */
-    height: 8px;
-    background: #f0f0f0;
-    outline: none;
-    border-radius: 4px;
-    border: none;
+  width: 100%; /* 横幅を調整 */
+  margin-top: 10px; /* 上部との間隔を設定 */
+  -webkit-appearance: none; /* Safariのデフォルトスタイルをリセット */
+  height: 8px;
+  background: #f0f0f0;
+  outline: none;
+  border-radius: 4px;
+  border: none;
 }
 
 #time-slider::-webkit-slider-thumb, #threshold::-webkit-slider-thumb {
-    -webkit-appearance: none; /* Safariのデフォルトスタイルをリセット */
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    background: #666;
-    cursor: pointer;
-    border-radius: 50%;
+  -webkit-appearance: none; /* Safariのデフォルトスタイルをリセット */
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #666;
+  cursor: pointer;
+  border-radius: 50%;
 }
 
 #timestamp-display {
-    padding: 10px;
-    margin: 0 10px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    width: 150px;
-    text-align: center;
+  padding: 10px;
+  margin: 0 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  width: 150px;
+  text-align: center;
 }
 
-/*　付箋全体のレイアウト */
-.note {
-    resize: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-width: 40%;
-    /* max-height: 70%; */
-    max-height: 35%;
-    background-color: aliceblue;
-    padding: 10px;
+/* ボタンの共通スタイル */
+button {
+  padding: 10px 15px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-btn, #warp-btn { 
+  border-radius: 3px;
+  margin: 10px; 
+  padding: 8px; 
+  cursor: pointer; 
+  background: #141515; 
+  color: #fff; 
+  border: none; 
+}
+
+/* 各ボタンのスタイル */
+button.run-btn {
+  background-color: #28a745; /* 緑色 */
+  color: white;
+  font-weight: bold;
+  flex-grow: 2; /* 最も目立たせるためにサイズを大きく */
+}
+
+button.run-btn:hover {
+  background-color: #218838;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+button.run-btn:active {
+  background-color: #1e7e34;
+}
+
+/* DeleteボタンとToggle Dragボタンは小さく */
+button.delete-btn,
+button.drag-toggle-btn {
+    background-color: #dc3545; /* 赤色 */
+    color: white;
+    font-weight: bold;
+    padding: 5px 10px; /* 小さくする */
+    font-size: 12px; /* フォントサイズを小さく */
+    margin-left: 10px;
+    flex-grow: 0; /* サイズを固定 */
+    border-radius: 4px; /* 角を丸める */
+}
+
+button.delete-btn:hover,
+button.drag-toggle-btn:hover {
+    background-color: #c82333;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+button.delete-btn:active,
+button.drag-toggle-btn:active {
+    background-color: #bd2130;
+}
+
+/* カラーピッカーのサイズ調整 */
+input.color-picker {
+    height: 35px;
+    width: 35px;
     cursor: pointer;
+    flex-grow: 0;
+    margin-left: 10px;
 }
 
-/* 付箋の生成時刻の文字サイズ */
-.timestamp{
-    font-size: 5px;
-}
-
-/*　付箋下部のボタン群のレイアウト */
-.sticky-button{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-/*　色を変えるボタン群の領域のサイズ */
-.sticky-color-button{
-    width: 40%;
-}
-
-/*　色を変えるボタンの共通設定 */
-.color-button{
-    width: 20%;
-    height: 70%;
-    color: rgb(0, 0, 0);
-    border: solid 0.5px #6e6d6d;
-    border-radius: 50%;
-    margin: 1%;
-}
-
-/*　色を変えるボタンの色 */
-input[data-color="#db6b3b"]{
-    background: #db6b3b;
-}
-
-input[data-color="#dfd964"]{
-    background: #dfd964;
-}
-
-input[data-color="#7cd89c"]{
-    background: #7cd89c;
-}
-
-input[data-color="aliceblue"]{
-    background: aliceblue;
-}
-
-/*　固定・削除ボタン群の領域のサイズ */
-.sticky-control-button{
-    display: flex;
-    justify-content: flex-end;
-    width: 50%;
-}
-
-/*　固定・削除ボタンの共通設定 */
-.sticky-control-button input{
-    width: 20%;
-    height: 70%;
-    color: rgb(0, 0, 0);
-    border: solid 0.5px #6e6d6d;
-    margin: 1%;
-}
-
-.cell{
-    overflow-y: scroll;
-}
-
-/* Ensure notes do not resize based on parent container */
-.new_note {
-    resize: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    background-color: aliceblue;
-    padding: 10px;
+/* ボタンのスタイル */
+button {
+    padding: 10px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    max-width: 40%;
-    max-height: 35%;
+    transition: all 0.3s ease;
 }
 
-/* Apply consistent styling to elements inside the note */
-.new_note .timestamp {
-    font-size: 12px;
+/* ボタンをコードセル内で並べる */
+.code-cell button {
+    margin-right: 5px; /* ボタン同士にスペースを確保 */
 }
 
-.new_note .sticky-button {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+/* code-cellのスクロールバーをスタイリング（矢印ボタンなし） */
+.code-cell {
+  scrollbar-width: thin; /* Firefox用 */
+  scrollbar-color: #555 #f1f1f1; /* スクロールバーの色: トラックとスライダー */
 }
 
-.new_note .sticky-color-button {
-    width: 40%;
+.code-cell::-webkit-scrollbar {
+  width: 8px; /* 横幅 */
+  height: 8px; /* 高さ（横スクロールバー） */
 }
 
-.new_note .color-button {
-    width: 20%;
-    height: 70%;
-    color: rgb(0, 0, 0);
-    border: solid 0.5px #6e6d6d;
-    border-radius: 50%;
-    margin: 1%;
+.code-cell::-webkit-scrollbar-thumb {
+  background: #555; /* スクロールバーの色 */
+  border-radius: 10px; /* 丸みを持たせる */
 }
 
-.new_note input[data-color="#db6b3b"] {
-    background: #db6b3b;
+.code-cell::-webkit-scrollbar-thumb:hover {
+  background: #444; /* ホバー時の色 */
 }
 
-.new_note input[data-color="#dfd964"] {
-    background: #dfd964;
+.code-cell::-webkit-scrollbar-track {
+  background: #f1f1f1; /* トラックの色 */
+  border-radius: 10px;
 }
 
-.new_note input[data-color="#7cd89c"] {
-    background: #7cd89c;
+.code-cell::-webkit-scrollbar-button {
+  display: none; /* スクロールバーのボタン（矢印）を非表示 */
 }
 
-.new_note input[data-color="aliceblue"] {
-    background: aliceblue;
+/* code-editorのスクロールバーをスタイリング（矢印ボタンなし） */
+.CodeMirror {
+  scrollbar-width: thin;
+  scrollbar-color: #666 #f9f9f9;
 }
 
-.new_note .sticky-control-button {
-    display: flex;
-    justify-content: flex-end;
-    width: 50%;
+.CodeMirror::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.new_note .sticky-control-button input {
-    width: 20%;
-    height: 70%;
-    color: rgb(0, 0, 0);
-    border: solid 0.5px #6e6d6d;
-    margin: 1%;
+.CodeMirror::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 10px;
 }
 
-.new_note .cell {
-    overflow-y: scroll;
+.CodeMirror::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.CodeMirror::-webkit-scrollbar-track {
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+
+.CodeMirror::-webkit-scrollbar-button {
+  display: none; /* スクロールバーのボタン（矢印）を非表示 */
 }
