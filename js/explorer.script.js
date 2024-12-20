@@ -221,3 +221,87 @@ document.addEventListener("keydown", (event) => {
     saveFile();
   }
 });
+
+// Pyodideの初期化
+let pyodideReadyPromise = loadPyodide();
+
+document.querySelector(".run-btn").addEventListener("click", async () => {
+    const outputElement = document.getElementById("output");
+    outputElement.innerHTML = ""; // 実行結果をクリア
+
+    // エディタのPythonコードを取得
+    const code = editor.getValue();
+
+    try {
+        const pyodide = await pyodideReadyPromise;
+
+        await pyodide.loadPackage(['matplotlib', 'numpy', 'pandas', 'scipy']);
+
+        // 改行とインデントを強制的に処理する
+        const sanitizedCode = code
+        .replace(/\\/g, "\\\\")       // バックスラッシュのエスケープ
+        .replace(/`/g, "\\`")         // バッククォートのエスケープ
+        .replace(/\$/g, "\\$")        // ドル記号のエスケープ
+        .replace(/\n/g, "\\n")        // 改行文字をエスケープ
+        .replace(/\r/g, "\\r");       // キャリッジリターンのエスケープ
+
+        // 標準出力をキャプチャするコードを注入
+        const wrappedCode = `
+            import sys
+            from io import StringIO
+            import matplotlib.pyplot as plt
+            import numpy as np
+            import pandas as pd
+            import scipy
+            import js
+            from pyodide.ffi import to_js
+
+            # 標準出力をリダイレクト
+            sys.stdout = StringIO()
+
+            # コードセルのサイズを取得（ピクセル単位）
+            cell_width = js.document.getElementById("output").clientWidth
+            cell_height = js.document.getElementById("output").clientHeight
+
+            # 図のサイズを設定（コードセルのサイズに合わせる）
+            fig_width = cell_width / 50  # 100ピクセルあたり1インチに変換
+            fig_height = cell_height / 50  # 同様に高さも調整
+
+            # ユーザーのコードを実行
+            try:
+                exec("""${sanitizedCode}""")
+                output = sys.stdout.getvalue()
+            except Exception as e:
+                output = str(e)
+
+            # Matplotlibの出力処理
+            if plt.get_fignums():  # 図が存在する場合
+                import io, base64
+                fig = plt.gcf()
+                fig.set_size_inches(fig_width, fig_height)  # 図のサイズを設定
+                buf = io.BytesIO()
+                fig.savefig(buf, format='png')
+                buf.seek(0)
+                img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+                js_code = f"<img src='data:image/png;base64,{img_base64}' />"
+                output = output + "\\n" + js_code
+
+                plt.close(fig)
+
+            output
+        `;
+
+        // 実行して結果を取得
+        const result = pyodide.runPython(wrappedCode);
+
+        // 実行結果を表示
+        if (result && result.trim()) {
+            outputElement.innerHTML = `<pre>${result}</pre>`;
+        } else {
+            outputElement.innerHTML = `<pre>実行完了（出力なし）</pre>`;
+        }
+    } catch (error) {
+        // JavaScriptエラーをキャッチして表示
+        outputElement.innerHTML = `<pre style="color: red;">エラー: ${error.message}</pre>`;
+    }
+});
