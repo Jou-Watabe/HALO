@@ -10,6 +10,8 @@
     <script src="./lib/codemirror.js"></script>
     <script src="./lib/matchbrackets.js"></script>
     <script src="./lib/python.js"></script>
+    <script src="./lib/closebrackets.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.0/full/pyodide.js"></script>
     <link rel="stylesheet" href="./styles/codemirror.css">
     <link rel="stylesheet" href="./styles/main.style.css">
     <link rel="stylesheet" href="./styles/explorer.style.css">
@@ -43,6 +45,10 @@
         <div class="code-editor">
             <div class="tab-bar" id="tab-bar"></div>
             <textarea id="editor" class="language-markup"></textarea>
+            <div class="output_area">
+                <button class="run-btn">Run</button>
+                <div id="output"></div>
+            </div>
         </div>
     </div>
     <script src="./js/main.script.js"></script>
