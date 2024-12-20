@@ -127,6 +127,39 @@ body {
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
+.output_area {
+    margin-top: 10px;
+    padding: 5px;
+    background: #f1f1f1;
+    font-size: 0.9em;
+    height: 20%;
+    border-top: 1px solid #ccc;
+    /* display: flex;
+    flex-direction: column; */
+}
+
+button.run-btn {
+    padding: 10px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #28a745; /* 緑色 */
+    color: white;
+    font-weight: bold;
+    /* width: 10%; */
+}
+
+#output {
+    width: 100%;
+    height: 80%;
+    background: #f1f1f1;
+    font-size: 0.9em;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
 .CodeMirror {
     /* border-top: 1px solid black; border-bottom: 1px solid black; */
     /* height: 100px; */
@@ -142,3 +175,8 @@ body {
     border-radius: 0 0 5px 5px;
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
 }
+
+/* .keyword { color: blue; }
+.variable { color: green; }
+.string { color: red; }
+.comment { color: grey; } */
