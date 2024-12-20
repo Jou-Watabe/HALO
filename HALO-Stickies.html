@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HALO-Stickies</title>
-    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
-    <script src="./lib/dexie.min.js"></script>
-    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css">
-    <link rel="stylesheet" href="./styles/jquery-ui.css">
+    <!-- <link rel="stylesheet" href="./styles/main.style.css"> -->
     <link rel="stylesheet" href="./styles/stickies.styles.css">
-    <link rel="stylesheet" href="./styles/main.style.css">
-    <link rel="stylesheet" href="./styles/main_ver-stikies.style.css">
+    <link rel="stylesheet" href="./styles/codemirror.css">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.0/full/pyodide.js"></script>
+    <script src="./lib/dexie.min.js"></script>
+    <script src="./lib/codemirror.js"></script>
+    <script src="./lib/python.js"></script>
+    <script src="./lib/closebrackets.js"></script>
 </head>
 <body>
     <div class="menu-bar">
@@ -28,33 +29,22 @@
             <button onclick="importSearchHistory()">検索履歴をインポート</button>
         </div>
     </div>
-    <div class="editor-container">
-        <div id="controller">
-            <div id="button-container">
-                <button id="add-button"><img src="./images/add.png" /></button>
-                <button id="warp-button"><img src="./images/clock.png" /></button>
-            </div>
-        </div>
-        <py-config>
-            packages = ["numpy", "pandas","matplotlib", "scikit-learn"]
-            terminal = false
-        </py-config>
-        <div id="sticky-note-container">
-            <div id="sticky-history-window">
-                <div id="sticky-histories"></div>
-                <div id="timeskip">
-                    <div id="timestamp-display">--:--:--</div>
-                    <input type="range" id="time-slider" min="0" max="0" step="1">
-                </div>
+    <div class="controller">
+        <button class="add-btn" onclick="addCodeCell()">+ Add Code Cell</button>
+        <button id="warp-btn">+ Show History</button>
+    </div>
+    <div id="workspace">
+        <div id="sticky-history-window">
+            <div id="sticky-histories"></div>
+            <div id="timeskip">
+                <div id="timestamp-display">--:--:--</div>
+                <input type="range" id="time-slider" min="0" max="0" step="1">
             </div>
         </div>
     </div>
     <script src="./js/database.script.js"></script>
     <script src="./js/page_move.script.js"></script>
     <script src="./js/search_history.js"></script>
-    <script src="./lib/jquery-3.6.0.min.js"></script>
-    <script src="./lib/jquery-ui.js"></script>
-    <script src="./lib/jquery.ui.touch-punch.min.js"></script>
     <script src="./js/stickies.script.js"></script>
 </body>
 </html>
