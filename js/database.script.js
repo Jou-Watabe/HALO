@@ -15,5 +15,5 @@ db_his.version(3).stores({
 });
 
 db_his.version(4).stores({
-    stickies: "++id,generate_time,run_time,code,text,top,left,color,is_run_cell,group_id"
+  stickies: "++id,generate_time,run_time,code,text,output,top,left,color,is_run_cell,group_id"
 });
