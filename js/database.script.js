@@ -7,7 +7,7 @@ db_his.version(1).stores({
 });
 
 db_his.version(2).stores({
-  notes: '++id,timestamp,action,position,contents'
+  snapshots: "++id,timestamp,content,pasteContent"
 });
 
 db_his.version(3).stores({
