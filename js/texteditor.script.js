@@ -1,352 +1,415 @@
-const editor = document.getElementById("editor");
-const fontSizeSelect = document.getElementById('fontSize');
-const fontFamilySelect = document.getElementById('fontFamily');
-const slider = document.getElementById('historySlider');
-const historyDisplay = document.getElementById('historyDisplay');
+const textInputArea = document.getElementById("textInputArea");
+const screenShotBtn = document.getElementById("screenShotBtn");
+const historyViewer = document.getElementById("historyViewer");
+const thumbnailArea = document.querySelector(".thumbnailArea");
 
-// 履歴データを管理する配列
-let history = [];
-let currentHistoryIndex = 0; // 現在の履歴インデックス
+let lastContent = ""; // 前回の内容を保存
+let selectedSnapshot = null; // ミニテキストエリアを選択した時の処理
 
-// 前回の保存内容を管理
-let lastSavedContent = ""; // 直前に保存された全体のコンテンツ
-let isComposing = false; // IME入力中かどうかを管理
-
-// エディタの内容をローカルストレージに保存
-const saveToLocalStorage = () => {
-    const currentContent = editor.value;
-    localStorage.setItem("editorContent", currentContent); // "editorContent"というキーで保存
-    console.log("エディタ内容をローカルストレージに保存しました");
-};
-
-// ページロード時にデータベースから行番号ごとのデータをグループ化し、タイムスタンプ順で表示
-const loadDataFromDatabase = () => {
-    db_his.notes.orderBy("timestamp").toArray().then(notes => {
-        // console.log("データベースから取得した行番号ごとのデータ:");
-
-        // 行番号ごとにグループ化
-        const groupedByLine = notes.reduce((acc, note) => {
-            const lineNumber = note.position.line;
-            if (!acc[lineNumber]) {
-                acc[lineNumber] = [];
-            }
-            acc[lineNumber].push(note);
-            return acc;
-        }, {});
-
-        // 各行番号についてタイムスタンプ順にデータを表示
-        Object.keys(groupedByLine).forEach(lineNumber => {
-            console.log(`行番号: ${lineNumber}`);
-
-            // タイムスタンプ順に並べて表示
-            const sortedNotes = groupedByLine[lineNumber].sort((a, b) => {
-                return new Date(a.timestamp) - new Date(b.timestamp);
-            });
-
-            sortedNotes.forEach(note => {
-                console.log(`タイムスタンプ: ${note.timestamp}`);
-                console.log(`内容: ${note.contents}`);
-                console.log("---------------");
-            });
-        });
-    }).catch(err => {
-        console.error("データベースからの取得に失敗しました:", err);
-    });
-};
-
-// ローカルストレージからエディタ内容を復元
-const loadFromLocalStorage = () => {
-    const savedContent = localStorage.getItem("editorContent");
-    if (savedContent !== null) {
-        editor.value = savedContent;
-        console.log("エディタ内容をローカルストレージから復元しました");
-    } else {
-        console.log("ローカルストレージに保存されたデータはありません");
-    }
-};
-
-const loadHistory = () => {
-    // データベースからすべてのノートを取得
-    db_his.notes.orderBy("timestamp").toArray().then(notes => {
-        // console.log("データベースから取得したデータ:", notes);
-
-        // 日付ごとにノートをグループ化（timestampから日付部分を抽出）
-        const groupedByDate = notes.reduce((acc, note) => {
-            const date = note.timestamp.split("_")[0]; // "YYYY-MM-DD"部分を抽出
-            if (!acc[date]) {
-                acc[date] = [];
-            }
-            acc[date].push(note);
-            return acc;
-        }, {});
-
-        // console.log("日付でグループ化されたデータ:", groupedByDate);
-
-        // 履歴エリアをクリア
-        const historyElement = document.getElementById("history");
-        historyElement.innerHTML = "";
-
-        // 各日付ごとにエントリーを作成
-        Object.keys(groupedByDate).forEach(date => {
-            const notesForDate = groupedByDate[date];
-            
-            // 行番号ごとにノートをグループ化
-            const groupedByLine = notesForDate.reduce((acc, note) => {
-                const lineNumber = note.position.line;
-                if (!acc[lineNumber]) {
-                    acc[lineNumber] = [];
-                }
-                acc[lineNumber].push(note);
-                return acc;
-            }, {});
-
-            // エントリーのコンテンツを作成
-            const entryElement = document.createElement("div");
-            entryElement.classList.add("history-entry");
-
-            // 日付を表示（今回は日付のみ）
-            const dateElement = document.createElement("div");
-            dateElement.classList.add("date");
-            dateElement.textContent = date; // 例: 2024-12-22
-            entryElement.appendChild(dateElement);
-
-            // 各行番号の最新データを表示
-            Object.keys(groupedByLine).forEach(lineNumber => {
-                // 行番号ごとのデータを最新のタイムスタンプでソート
-                const sortedNotes = groupedByLine[lineNumber].sort((a, b) => {
-                    // タイムスタンプをDateオブジェクトとして比較
-                    return new Date(b.timestamp.replace("_", "T")) - new Date(a.timestamp.replace("_", "T")); // 降順でソート
-                });
-
-                // 最新のデータを通常表示、履歴は小さくタイムスタンプ付きで表示
-                const latestNote = sortedNotes[0];
-                const latestNoteElement = document.createElement("div");
-                latestNoteElement.classList.add("latest-note");
-                latestNoteElement.textContent = `行 ${lineNumber}: ${latestNote.contents}`;
-                // コピペなら背景を黄色に
-                if (latestNote.action === "paste") {
-                    latestNoteElement.style.backgroundColor = "yellow";
-                }
-                entryElement.appendChild(latestNoteElement);
-
-                // 履歴データを逆順（昇順）で表示（最新以外の内容）
-                sortedNotes.slice(1).reverse().forEach((note) => {
-                    const noteElement = document.createElement("div");
-                    noteElement.classList.add("past-note");
-
-                    // 過去の内容のスタイルを調整（小さく、薄く）
-                    noteElement.textContent = `${note.timestamp} - ${note.contents}`;
-                    noteElement.style.fontSize = "0.8em";
-                    noteElement.style.color = "gray"; // 薄い色
-
-                    if (note.action === "paste") {
-                        noteElement.style.backgroundColor = "yellow";
-                    }
-
-                    entryElement.appendChild(noteElement);
-                });
-            });
-
-            // 履歴エリアにエントリーを追加
-            historyElement.appendChild(entryElement);
-        });
-    }).catch(err => {
-        console.error("データベースからの取得に失敗しました:", err);
-    });
-};
-
-// タイムスタンプ生成関数
-const generateTimestamp = () => {
+// 日本時間のタイムスタンプを生成する関数
+function getJSTTimestamp() {
     const now = new Date();
-    const yyyy = now.getFullYear();
-    const MM = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    const HH = String(now.getHours()).padStart(2, '0');
-    const mm = String(now.getMinutes()).padStart(2, '0');
-    const ss = String(now.getSeconds()).padStart(2, '0');
-    return `${yyyy}-${MM}-${dd}_${HH}:${mm}:${ss}`;
-};
+    const offset = 9 * 60 * 60 * 1000; // UTCから日本時間(JST)へのオフセット
+    const jstDate = new Date(now.getTime() + offset);
+    return jstDate.toISOString().replace("T", "_").replace(/\..+/, "");
+}
 
-// 現在の日付（"YYYY-MM-DD"形式）を取得
-const getTodayDate = () => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-};
+// スナップショットを保存する関数
+async function saveSnapshot(content) {
+    const timestamp = getJSTTimestamp();
+    await db_his.snapshots.add({ timestamp, content });
+}
 
-// ローカルストレージに「今日」の履歴を保存
-const saveHistoryToLocal = (content) => {
-    const today = getTodayDate();
-    const historyKey = `history_${today}`; // 例: history_2024-12-22
-    const timestamp = new Date().toISOString(); // タイムスタンプ（ISO形式）
-
-    // 現在の履歴を取得
-    const historyToday = JSON.parse(localStorage.getItem(historyKey)) || [];
-    historyToday.push({ timestamp, content });
-
-    // ローカルストレージに保存
-    localStorage.setItem(historyKey, JSON.stringify(historyToday));
-    console.log("履歴を保存しました:", { timestamp, content });
-};
-
-// ローカルストレージから「今日」の履歴を取得
-const loadHistoryFromLocal = () => {
-    const today = getTodayDate();
-    const historyKey = `history_${today}`;
-    const historyToday = JSON.parse(localStorage.getItem(historyKey)) || [];
-    // console.log("今日の履歴をロードしました:", historyToday);
-    return historyToday;
-};
-
-// 差分を取得する関数（行ごとに判断）
-const getDifferences = (fullContent, savedContent) => {
-    if (!savedContent) {
-        // 最初の保存時: 全内容を行ごとに記録
-        return fullContent.split("\n").map((line, index) => ({
-            lineNumber: index + 1,
-            content: line,
-        }));
+// 最後のスナップショットを取得して表示する関数
+async function loadLastSnapshot() {
+    const lastSnapshot = await db_his.snapshots.orderBy("id").last();
+    if (lastSnapshot && lastSnapshot.content) {
+        textInputArea.value = lastSnapshot.content;
+        lastContent = lastSnapshot.content;
     }
+}
 
-    const fullLines = fullContent.split("\n");
-    const savedLines = savedContent.split("\n");
+// 入力イベントのハンドリング
+textInputArea.addEventListener("input", async (event) => {
+    // 日本語入力ではない場合（アルファベット入力など）
+    if (event.inputType !== "insertCompositionText") {
+        const content = textInputArea.value;
+        if (content !== lastContent) {
+            await saveSnapshot(content);
+            lastContent = content;
+        }
+    }
+});
 
-    const differences = [];
+// 日本語入力の合成終了時（日本語の確定後）にスナップショットを保存
+textInputArea.addEventListener("compositionend", async (event) => {
+    const content = textInputArea.value;
+    if (content !== lastContent) {
+        await saveSnapshot(content);
+        lastContent = content;
+    }
+});
 
-    const maxLength = Math.max(fullLines.length, savedLines.length);
-    for (let i = 0; i < maxLength; i++) {
-        if (fullLines[i] !== savedLines[i]) {
-            differences.push({
-                lineNumber: i + 1,
-                content: fullLines[i] || "", // 変更内容が空の場合も記録
-            });
+// キーイベント（Enter, Backspace）のハンドリング
+textInputArea.addEventListener("keydown", async (event) => {
+    if (event.key === "Enter" || event.key === "Backspace") {
+        const content = textInputArea.value;
+        if (content !== lastContent) {
+            await saveSnapshot(content);
+            lastContent = content;
+        }
+    }
+});
+
+// ペーストイベントのハンドリング
+textInputArea.addEventListener("paste", async (event) => {
+    const content = textInputArea.value;
+    const pasteText = event.clipboardData.getData("text");
+
+    // ペーストされたテキストが含まれている部分を記録
+    const pasteContent = pasteText;
+
+    // スナップショットを保存
+    const timestamp = getJSTTimestamp();
+    await db_his.snapshots.add({ timestamp, content, pasteContent });
+
+    lastContent = content;
+});
+
+// スクリーンショットボタンのクリックイベント
+screenShotBtn.addEventListener("click", async () => {
+    const content = textInputArea.value;
+    await saveSnapshot(content);
+
+    // アラートメッセージを表示
+    alert("スナップショットが保存されました");
+});
+
+// テキスト選択時のハンドリング
+textInputArea.addEventListener("mouseup", async () => {
+    const selection = window.getSelection();
+    const selectedText = selection.toString();
+
+    // detailed-containerをクリア
+    const detailedContainer = document.querySelector(".detailed-container");
+    detailedContainer.innerHTML = ""; // クリアする
+
+    if (selectedText) {
+        // 選択されたテキストに一致するスナップショットを取得
+        const snapshots = await db_his.snapshots.toArray();
+        const matchedSnapshots = snapshots.filter((snap) => snap.content.includes(selectedText));
+
+        if (matchedSnapshots.length > 0) {
+            // 該当するスナップショットを履歴ビューアに表示
+            displayHistory(snapshots, matchedSnapshots, selectedText); // 変更点
+        }
+    }
+});
+
+function handleMiniTextAreaClick(snap, miniTextArea) {
+    // すでに選択されたテキストエリアがある場合、その枠線をリセット
+    if (selectedSnapshot) {
+        const previousSelected = document.querySelector(`#historyViewer .selected, #detailed-container .selected`);
+        if (previousSelected) {
+            previousSelected.classList.remove("selected");
+            previousSelected.style.border = "1px solid gray";
         }
     }
 
-    return differences;
-};
+    // 新たに選択されたスナップショットに枠線を追加
+    miniTextArea.classList.add("selected");
+    miniTextArea.style.border = "2px solid green"; // 緑色の枠線に変更
 
-// 保存処理（行ごとに記録）
-const saveToDatabase = (action) => {
-    const currentContent = editor.value;
-    const differences = getDifferences(currentContent, lastSavedContent);
+    // 選択されたスナップショットを保存
+    selectedSnapshot = snap;
 
-    if (differences.length > 0) {
-        const timestamp = generateTimestamp();
+    // 履歴として選択されたテキストを表示
+    displayChoiceViewer(snap);
+}
 
-        // 各行ごとに保存
-        differences.forEach(({ lineNumber, content }) => {
-            db_his.notes.add({
-                timestamp: timestamp,
-                action: action,
-                position: { line: lineNumber, content: content },
-                contents: content,
-            }).then(() => {
-                console.log("保存しました:", { action, lineNumber, content });
+// choiceViewerに選択されたテキストを表示
+function displayChoiceViewer(snap) {
+    const choiceViewer = document.getElementById("choiceViewer");
+
+    // 新しいスナップショットをリストとして表示
+    const choiceContainer = document.createElement("div");
+    choiceContainer.style.display = "flex";
+    choiceContainer.style.flexDirection = "column"; // 縦方向に並べる
+    choiceContainer.style.alignItems = "center"; // 中央に配置
+    choiceContainer.style.marginBottom = "15px"; // 下部に少しマージンを追加
+
+    const timestampLabel = document.createElement("div");
+    timestampLabel.textContent = snap.timestamp;
+    timestampLabel.style.fontSize = "12px";
+    timestampLabel.style.textAlign = "center";
+    timestampLabel.style.marginBottom = "3px"; // 下部にマージンを追加
+
+    const miniTextArea = document.createElement("textarea");
+    miniTextArea.value = snap.content;
+    miniTextArea.readOnly = true;
+    miniTextArea.style.width = "80%";
+    miniTextArea.style.height = "60px";
+    miniTextArea.style.resize = "none";
+    miniTextArea.style.overflowY = "scroll";
+    miniTextArea.style.border = "1px solid gray";
+    
+
+    choiceContainer.appendChild(timestampLabel);
+    choiceContainer.appendChild(miniTextArea);
+
+    // choiceViewerの最初に追加
+    choiceViewer.insertBefore(choiceContainer, choiceViewer.firstChild); // リストの最初に追加
+}
+
+// 履歴を表示する関数
+function displayHistory(allSnapshots, matchedSnapshots, selectedText) {
+    historyViewer.innerHTML = ""; // 初期化
+    historyViewer.style.display = "flex"; // フレックスコンテナとして設定
+
+    const listContainer = document.createElement("div");
+    listContainer.classList.add("list-container");
+    listContainer.style.display = "flex";
+    listContainer.style.overflowX = "auto"; // 横スクロール
+
+    let lastSnapshot = null;
+
+    matchedSnapshots.forEach((snap, index) => {
+        // 最初のスナップショットは確定で表示
+        if (index === 0 || (lastSnapshot && isDifferenceMatch(lastSnapshot, snap, selectedText))) {
+            const snapContainer = document.createElement("div");
+            snapContainer.classList.add("snapshot-container");
+            snapContainer.style.margin = "0 10px";
+
+            const timestampLabel = document.createElement("div");
+            timestampLabel.textContent = snap.timestamp;
+            timestampLabel.style.fontSize = "12px";
+            timestampLabel.style.textAlign = "center";
+
+            const miniDiv = document.createElement("div");
+            miniDiv.classList.add("mini-text");
+            miniDiv.style.width = "150px";
+            miniDiv.style.height = "100px";
+            miniDiv.style.fontSize = "5px";
+            miniDiv.style.overflowY = "auto";
+            miniDiv.style.whiteSpace = "pre-wrap"; // 改行を保持
+            miniDiv.style.wordWrap = "break-word"; // 長い単語を折り返す
+            miniDiv.style.border = "1px solid gray";
+            miniDiv.style.padding = "5px";
+            miniDiv.style.boxSizing = "border-box";
+
+            // テキストをハイライトして表示
+            let highlightedContent = highlightText(snap.content, selectedText);
+
+            miniDiv.innerHTML = highlightedContent; // ハイライトされたテキストを表示
+
+            snapContainer.appendChild(timestampLabel);
+            snapContainer.appendChild(miniDiv);
+
+            // スナップショットクリック時に詳細表示
+            miniDiv.addEventListener("click", () => {
+                displayDetailedHistory(allSnapshots, snap);
+                handleMiniTextAreaClick(snap, miniDiv); // クリック時の処理
             });
+
+            listContainer.appendChild(snapContainer);
+            lastSnapshot = snap; // 最後に表示したスナップショットを更新
+        }
+    });
+
+    historyViewer.appendChild(listContainer);
+}
+
+function highlightText(content, selectedText) {
+    const escapedText = selectedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // 特殊文字をエスケープ
+    const regex = new RegExp(`(${escapedText})`, 'gi'); // 選択されたテキストにマッチする正規表現
+    return content.replace(regex, '<span class="highlight">$1</span>'); // ハイライト用の<span>を追加
+}
+
+// 差分を確認する関数
+function isDifferenceMatch(lastSnapshot, currentSnapshot, selectedText) {
+    // 最後のスナップショットと現在のスナップショットの差分が選択されたテキストと一致する場合
+    const diff = getTextDifference(lastSnapshot.content, currentSnapshot.content);
+    console.log("差分:", diff); // 差分をコンソールに出力
+    return diff.includes(selectedText);
+}
+
+// 2つのテキストの差分を取得する関数（diff-match-patchを使用）
+function getTextDifference(lastContent, currentContent) {
+    const dmp = new diff_match_patch();
+    const diffs = dmp.diff_main(lastContent, currentContent);
+    dmp.diff_cleanupSemantic(diffs);  // セマンティックな清掃を行う（空白や句読点を無視する）
+
+    let addedText = "";
+    let removedText = "";
+
+    // 差分から追加されたテキストと削除されたテキストを抽出
+    diffs.forEach((part) => {
+        if (part[0] === 1) {
+            addedText += part[1]; // 追加部分
+        } else if (part[0] === -1) {
+            removedText += part[1]; // 削除部分
+        }
+    });
+
+    console.log("追加されたテキスト:", addedText); // 追加されたテキストをログ出力
+    console.log("削除されたテキスト:", removedText); // 削除されたテキストをログ出力
+
+    return addedText; // 追加されたテキストを差分として返す
+}
+
+// 選択されたスナップショットの詳細表示（横並び）
+function displayDetailedHistory(allSnapshots, selectedSnapshot) {
+    const selectedIndex = allSnapshots.findIndex((snap) => snap.id === selectedSnapshot.id);
+    const start = Math.max(0, selectedIndex - 30); // 最初の30件
+    const end = Math.min(allSnapshots.length, selectedIndex + 31); // 次の30件
+
+    const detailedContainer = document.querySelector(".detailed-container");
+    detailedContainer.innerHTML = ""; // 初期化
+    detailedContainer.style.display = "flex"; // 横並びに設定
+    detailedContainer.style.overflowX = "scroll"; // 横スクロールを有効にする
+
+    // 前後30件をリスト表示
+    const rangeSnapshots = allSnapshots.slice(start, end);
+    rangeSnapshots.forEach((snap) => {
+        const snapContainer = document.createElement("div");
+        snapContainer.classList.add("snapshot-container");
+        snapContainer.style.margin = "0 10px";
+        snapContainer.style.textAlign = "center"; // 中央に配置
+
+        const timestampLabel = document.createElement("div");
+        timestampLabel.textContent = snap.timestamp;
+        timestampLabel.style.fontSize = "12px"; // 時間のフォントサイズ
+        timestampLabel.style.marginBottom = "5px"; // 下にマージンを追加
+
+        const miniTextArea = document.createElement("textarea");
+        miniTextArea.value = snap.content;
+        miniTextArea.readOnly = true;
+        miniTextArea.style.width = "150px";
+        miniTextArea.style.height = "100px";
+        miniTextArea.style.fontSize = "5px";
+        miniTextArea.style.resize = "none";
+        miniTextArea.style.overflowY = "scroll";
+        miniTextArea.style.border = snap.id === selectedSnapshot.id ? "2px solid blue" : "1px solid gray"; // 選択されたスナップショットに強調表示
+
+        snapContainer.appendChild(timestampLabel);
+        snapContainer.appendChild(miniTextArea);
+        detailedContainer.appendChild(snapContainer);
+
+        // 現在のスナップショットを目立たせる
+        if (snap.id === selectedSnapshot.id) {
+            miniTextArea.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    });
+}
+
+async function plotHistory() {
+    const snapshots = await db_his.snapshots.orderBy("timestamp").toArray();
+    const plotViewer = document.getElementById("plotViewer");
+    plotViewer.innerHTML = ""; // 初期化
+
+    if (snapshots.length < 2) return; // 履歴が2件未満ならプロットしない
+
+    // 最初のタイムスタンプと最後のタイムスタンプを取得
+    const startTime = new Date(snapshots[0].timestamp);
+    const endTime = new Date(snapshots[snapshots.length - 1].timestamp);
+    const totalDuration = endTime - startTime; // 全期間のミリ秒
+
+    // プロット位置のスケーリングファクター
+    const scaleFactor = 1000; // 例えば、時間差が極端に短い場合に視覚的に調整する
+
+    // 履歴をプロットするための設定
+    snapshots.forEach((snap, index) => {
+        const currentTime = new Date(snap.timestamp);
+        const timeElapsed = currentTime - startTime; // 経過時間（ミリ秒）
+
+        // タイムスタンプ間隔が短すぎる場合のスケーリングを適用
+        let verticalPosition = (timeElapsed / totalDuration) * 100; // 比率を計算して百分率で縦位置を決定
+
+        // 必要に応じてスケーリング
+        if (timeElapsed < scaleFactor) {
+            verticalPosition *= 2; // スケーリング因子（見やすさのための調整）
+        }
+
+        // プロットするオブジェクト（円やバーなど）
+        const plotElement = document.createElement("div");
+        plotElement.classList.add("plot-element");
+
+        // 任意のスタイル設定（円形のオブジェクト）
+        plotElement.style.position = "absolute";
+        plotElement.style.left = "50%"; // 水平方向は中央に配置（オプション）
+        plotElement.style.top = `${verticalPosition}%`; // 縦位置を設定
+        plotElement.style.transform = "translateX(-50%)"; // 水平中央揃え
+        plotElement.style.width = "10px";
+        plotElement.style.height = "10px";
+        plotElement.style.backgroundColor = "#4CAF50"; // 任意の色
+        plotElement.style.borderRadius = "50%"; // 円形にする
+
+        // 履歴の内容を表示（ツールチップ）
+        plotElement.title = snap.timestamp + "\n" + snap.content;
+
+        plotViewer.appendChild(plotElement);
+    });
+
+    // plotViewerの高さを100%に設定
+    plotViewer.style.position = "relative";
+    plotViewer.style.height = "100%";
+}
+
+// thumbnailAreaに最新の日付ごとの最後のスナップショットを表示
+async function displayThumbnails() {
+    const snapshots = await db_his.snapshots.orderBy("timestamp").toArray();
+    thumbnailArea.innerHTML = ""; // 初期化
+
+    // 日付ごとに最後のスナップショットを取得
+    const dateGroupedSnapshots = {};
+
+    snapshots.forEach((snap) => {
+        const date = snap.timestamp.split("_")[0]; // 日付部分だけを取得 (例: 2024-03-21)
+
+        // その日付の最後のスナップショットを保存
+        if (!dateGroupedSnapshots[date] || dateGroupedSnapshots[date].id < snap.id) {
+            dateGroupedSnapshots[date] = snap;
+        }
+    });
+
+    // グループ化されたスナップショットを表示
+    Object.keys(dateGroupedSnapshots).forEach((date) => {
+        const snap = dateGroupedSnapshots[date];
+        
+        const snapContainer = document.createElement("div");
+        snapContainer.classList.add("thumbnail-snapshot");
+        snapContainer.style.marginBottom = "10px";
+        snapContainer.style.margin = "0 auto"; // 横中央に配置
+
+        const timestampLabel = document.createElement("div");
+        timestampLabel.textContent = date; // 日付ラベルを表示
+        timestampLabel.style.fontSize = "12px";
+        timestampLabel.style.textAlign = "center";
+
+        const miniTextArea = document.createElement("textarea");
+        miniTextArea.value = snap.content;
+        miniTextArea.readOnly = true;
+        miniTextArea.style.width = "95%"; // 幅を95%に設定
+        miniTextArea.style.height = "60px";
+        miniTextArea.style.resize = "none";
+        miniTextArea.style.overflowY = "scroll"; // 縦方向スクロールを有効にする
+        miniTextArea.style.border = "1px solid gray";
+
+        // ミニテキストエリアクリック時にtextInputAreaを更新
+        miniTextArea.addEventListener("click", () => {
+            textInputArea.value = snap.content;
+            lastContent = snap.content; // 更新後の状態を保存
         });
 
-        // 保存後、保存済み内容を更新
-        lastSavedContent = currentContent;
-    }
-};
+        snapContainer.appendChild(timestampLabel);
+        snapContainer.appendChild(miniTextArea);
+        thumbnailArea.appendChild(snapContainer);
+    });
+}
 
-// ページロード時にデータベースからデータをロード
+// ページ読み込み時に最後のスナップショットをロード
 window.addEventListener("load", () => {
-    fontSizeSelect.addEventListener('change', () => {
-        editor.style.fontSize = fontSizeSelect.value;
-    });
-
-    fontFamilySelect.addEventListener('change', () => {
-        editor.style.fontFamily = fontFamilySelect.value;
-    });
-
-    const historyToday = loadHistoryFromLocal();
-
-    // スライダーの最大値を設定
-    slider.max = historyToday.length - 1;
-
-    // スライダーの値を最新に設定
-    slider.value = historyToday.length - 1;
-
-    // 最新の履歴を表示
-    if (historyToday.length > 0) {
-        historyDisplay.textContent = historyToday[historyToday.length - 1].content;
-    } else {
-        historyDisplay.textContent = "履歴がありません";
-    }
-
-    loadHistory();
-    loadFromLocalStorage(); // ローカルストレージからエディタ内容を復元
-    loadDataFromDatabase(); // データベースからデータを取得してコンソールに表示
-});
-
-// 保存処理を各イベントに追加
-editor.addEventListener("input", saveToLocalStorage); // 入力があるたびに保存
-editor.addEventListener("compositionend", saveToLocalStorage); // IME確定時にも保存
-
-// エディタ入力時の処理
-editor.addEventListener("input", () => {
-    const currentContent = editor.value;
-    saveHistoryToLocal(currentContent); // 現在の内容を履歴に追加
-
-    // リアルタイムでhistoryDisplayを更新
-    historyDisplay.textContent = currentContent;
-
-    // スライダーの最大値と値を更新
-    const historyToday = loadHistoryFromLocal();
-    slider.max = historyToday.length - 1;
-    slider.value = historyToday.length - 1;
-});
-
-// スライダーの動作処理
-slider.addEventListener("input", () => {
-    const historyToday = loadHistoryFromLocal();
-    const index = parseInt(slider.value, 10);
-    const contentToShow = historyToday[index]?.content || "";
-    historyDisplay.textContent = contentToShow; // 履歴内容を表示
-});
-
-// IME入力開始時の処理
-editor.addEventListener("compositionstart", () => {
-    isComposing = true;
-    console.log("IME入力開始");
-});
-
-// IME入力確定時の処理
-editor.addEventListener("compositionend", () => {
-    isComposing = false;
-    console.log("IME入力終了: 保存処理を実行");
-
-    // IME確定時に保存処理を実行
-    const action = "input";
-    saveToDatabase(action);
-
-    // 現在のカーソル位置（行番号）を取得
-    const cursorPosition = editor.selectionStart; // カーソルの位置
-    const lines = editor.value.substr(0, cursorPosition).split("\n"); // カーソル位置までの行を分割
-    const currentLineNumber = lines.length; // 現在の行番号（1-based index）
-
-    console.log("IME入力完了: 現在の行番号は", currentLineNumber);
-});
-
-// Enterキー押下時の処理
-editor.addEventListener("keydown", (e) => {
-    if (isComposing) {
-        console.log("IME入力中: Enterキー無視");
-        return; // IME入力中は処理をスキップ
-    }
-    if (e.key === "Enter") {
-        console.log("Enterキー押下: 保存処理を実行");
-        const action = "input";
-        saveToDatabase(action);
-    }
-});
-
-// コピペ時の処理
-editor.addEventListener("paste", (e) => {
-    console.log("コピペ検知");
-    const action = "paste";
-    setTimeout(() => {
-        saveToDatabase(action); // コピペ内容反映後に保存
-    }, 0);
+    plotHistory(); // プロット関数を呼び出し
+    loadLastSnapshot();
+    displayThumbnails(); // thumbnailAreaに最新50件を表示
 });
