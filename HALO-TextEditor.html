@@ -26,38 +26,29 @@
         </div>
     </div>
     <div class="main-container">
-        <div class="container">
-            <div class="edit-container">
-                <textarea id="editor" placeholder="ここにメモを入力..."></textarea>
-                <div class="editor-options">
-                    <label for="fontSize">フォントサイズ:</label>
-                    <select id="fontSize">
-                        <option value="12px">小さい</option>
-                        <option value="16px" selected>普通</option>
-                        <option value="20px">大きい</option>
-                    </select>
-                    <label for="fontFamily">フォント:</label>
-                    <select id="fontFamily">
-                        <option value="Arial, sans-serif" selected>Arial</option>
-                        <option value="Times New Roman, serif">Times New Roman</option>
-                        <option value="Courier New, monospace">Courier New</option>
-                    </select>
+        <div id="sub">
+            <div class="thumbnailArea"></div>
+        </div>
+        <div id="main">
+            <div class="top">
+                <div class="textInputArea_container">
+                    <textarea id="textInputArea"></textarea>
+                    <button id="screenShotBtn">screenShot</button>
+                </div>
+                <div class="plotViewer_container">
+                    <div id="plotViewer"></div>
                 </div>
             </div>
-            <div class="historyDisplay-group">
-                <div id="historyDisplay"></div>
-                <input type="range" id="historySlider" min="0" max="0" step="1">
+            <div class="bottom">
+                <div class="history_container">
+                    <div id="historyViewer"></div>
+                    <div class="detailed-container"></div>
+                </div>
+                <div id="choiceViewer" class="choiceViewer"></div>
             </div>
         </div>
-        <div class="history-container">
-            <div id="history"></div>
-            <!-- <div class="history-controls">
-                <label for="threshold">閾値 (秒): </label>
-                <input type="range" id="threshold" min="1" max="300" value="1">
-                <span id="thresholdValue">1</span> 秒
-            </div> -->
-        </div>
     </div>
+    <script src="./lib/diff_match_patch.js"></script>
     <script src="./js/database.script.js"></script>
     <script src="./js/page_move.script.js"></script>
     <script src="./js/search_history.js"></script>
